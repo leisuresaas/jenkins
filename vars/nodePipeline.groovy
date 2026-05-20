@@ -12,6 +12,10 @@ def call(Map config = [:]){
 
         environment{
             APP_NAME = "${config.name}"
+            APP_DIR = "/home/app/${config.name}"
+            BACKUP_DIR = "/home/backup/${config.name}"
+            TEMP_DIR = "/tmp/deploy_${config.name}"
+            ARCHIVE_FILE = "/home/archive/${config.name}.tar"
         }
 
         tools{
@@ -73,8 +77,8 @@ def call(Map config = [:]){
                         cp -r .next/static ./build/.next
                         cp -r ./public ./build
                         cd ./build
-                        rm -f /home/archive/${APP_NAME}.tar
-                        tar -cf /home/archive/${APP_NAME}.tar .
+                        rm -f ${ARCHIVE_FILE}
+                        tar -cf ${ARCHIVE_FILE} .
                         cd ..
                     '''
                 }
@@ -104,7 +108,7 @@ def call(Map config = [:]){
 
                 steps{
 
-                    input message: "Confirm deploy to production server?", ok: "confirm"
+                    // input message: "Confirm deploy to production server?", ok: "confirm"
 
                     script{
 
@@ -122,10 +126,6 @@ def call(Map config = [:]){
                                                 set -e
 
                                                 # 
-                                                TEMP_DIR="/tmp/deploy_${APP_NAME}"
-                                                BACKUP_DIR="/home/backup/${APP_NAME}"
-                                                APP_DIR="/home/app/${APP_NAME}"
-
                                                 mkdir -p ${TEMP_DIR}
 
                                                 #
@@ -140,7 +140,6 @@ def call(Map config = [:]){
                                                 rm -rf ${BACKUP_DIR}
                                                 mv ${APP_DIR} ${BACKUP_DIR}
                                                 mv ${TEMP_DIR} ${APP_DIR}
-                                                echo "hello production"
 
                                             """
                                         )
