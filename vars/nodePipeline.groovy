@@ -64,6 +64,11 @@ def call(Map config = [:]){
             }
 
             stage("DepolyToTestServer"){
+
+                when{
+                    branch 'main'
+                }
+                
                 steps{
                     sh '''
                         rm -rf /home/app/test/*
