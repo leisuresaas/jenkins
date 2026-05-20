@@ -46,6 +46,21 @@ def call(Map config = [:]){
                 }
             }
 
+            stage("Archive"){
+                steps{
+                    sh '''
+                        rm -rf ./build
+                        mkdir ./build
+                        cp -r .next/standalone/* ./build
+                        cp -r .next/standalone/.next ./build
+                        cp -r .next/static ./build/.next
+                        cp -r ./public ./build
+                        cd ./build
+                        tar -cvf /home/archive/test.tar .
+                    '''
+                }
+            }
+
         }
     }
 }
