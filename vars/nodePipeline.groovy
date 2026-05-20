@@ -56,8 +56,17 @@ def call(Map config = [:]){
                         cp -r .next/static ./build/.next
                         cp -r ./public ./build
                         cd ./build
-                        tar -cvf ../test.tar .
+                        tar -cvf /home/archive/test.tar .
                         cd ..
+                    '''
+                }
+            }
+
+            stage("DepolyToTestServer"){
+                steps{
+                    sh '''
+                        rm -rf /home/test/*
+                        sudo tar -xvf /home/archive/test.tar /home/test/
                     '''
                 }
             }
