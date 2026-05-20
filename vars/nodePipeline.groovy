@@ -8,14 +8,14 @@ def call(Map config = [:]){
         agent any
         
         environment {
-
+            NODE_VERSION = config.version ?: '24'
         }
 
         stages{
 
             stage('Checkout'){
-                echo "checkout source from github..."
                 steps{
+                    echo "checkout source from github..."
                     checkout scm
                 }
             }
