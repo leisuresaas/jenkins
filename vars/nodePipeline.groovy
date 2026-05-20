@@ -94,7 +94,7 @@ def call(Map config = [:]){
                     sh '''
                         #
                         if [ -f "${APP_DIR}/.env" ]; then
-                            mv ${APP_DIR}/.env /tmp/${APP_NAME}.env
+                            sudo mv ${APP_DIR}/.env /tmp/${APP_NAME}.env
                         fi
 
                         #
@@ -106,7 +106,7 @@ def call(Map config = [:]){
                         
                         #
                         if [ -f "/tmp/${APP_NAME}.env" ]; then
-                            mv /tmp/${APP_NAME}.env ${APP_DIR}/.env
+                            sudo mv /tmp/${APP_NAME}.env ${APP_DIR}/.env
                         fi
 
                         docker restart ${APP_NAME}-node
