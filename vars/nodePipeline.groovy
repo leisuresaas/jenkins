@@ -122,21 +122,24 @@ def call(Map config = [:]){
                                                 set -e
 
                                                 # 
-                                                TEMP_DIR = "/tmp/deploy_${APP_NAME}"
+                                                TEMP_DIR="/tmp/deploy_${APP_NAME}"
+                                                BACKUP_DIR="/home/backup/${APP_NAME}"
+                                                APP_DIR="/home/app/${APP_NAME}"
+
                                                 mkdir -p ${TEMP_DIR}
 
                                                 #
                                                 tar -xf /tmp/${APP_NAME}.tar -C ${TEMP_DIR}
 
                                                 #
-                                                if [-f "/home/app/${APP_NAME}/.env"]; then
-                                                    cp /home/app/${APP_NAME}/.env ${TEMP_DIR}/
+                                                if [ -f "${APP_DIR}/.env"]; then
+                                                    cp ${APP_DIR}/.env ${TEMP_DIR}/
                                                 fi
 
                                                 #
-                                                rm -rf /home/backup/${APPNAME}/
-                                                mv /home/app/${APP_NAME} /home/backup/${APP_NAME}
-                                                mv ${TEMP_DIR} /home/app/${APP_NAME}
+                                                rm -rf ${BACKUP_DIR}
+                                                mv ${APP_DIR} ${BACKUP_DIR}
+                                                mv ${TEMP_DIR} ${APP_DIR}
                                                 echo "hello production"
 
                                             """
