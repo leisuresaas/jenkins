@@ -39,7 +39,7 @@ def call(Map config = [:]){
             stage('Build'){
                 steps{
                     sh '''
-                        pnpm approve-builds --force || true
+                        pnpm approve-builds --all
                         pnpm install
                         pnpm build
                     '''
