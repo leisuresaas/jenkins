@@ -9,9 +9,6 @@ def call(Map config = [:]){
             nodejs 'node-25'
         }
         
-        environment {
-        }
-
         stages{
 
             stage('Prepare'){
