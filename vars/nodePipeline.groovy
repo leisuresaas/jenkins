@@ -14,7 +14,7 @@ def call(Map config = [:]){
             stage('Prepare'){
                 steps{
                     script{
-                        def version = config.version ?; '25'
+                        def version = config.version ?: '25'
                         env.NODE_VERSION = version
                     }
                 }
