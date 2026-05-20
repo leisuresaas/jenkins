@@ -56,6 +56,7 @@ def call(Map config = [:]){
                         cp -r .next/static ./build/.next
                         cp -r ./public ./build
                         cd ./build
+                        rm -f /home/archive/test.tar
                         tar -cvf /home/archive/test.tar .
                         cd ..
                     '''
