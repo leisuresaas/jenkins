@@ -140,7 +140,7 @@ def call(Map config = [:]){
                                                 fi
 
                                                 #
-                                                rm -rf ${BACKUP_DIR}
+                                                sudo rm -rf ${BACKUP_DIR}
                                                 mv ${APP_DIR} ${BACKUP_DIR}
                                                 mv ${TEMP_DIR} ${APP_DIR}
 
