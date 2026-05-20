@@ -67,7 +67,7 @@ def call(Map config = [:]){
                 steps{
                     sh '''
                         rm -rf /home/app/test/*
-                        tar -xvf /home/archive/test.tar /home/app/test/
+                        tar -xvf /home/archive/test.tar -C /home/app/test/
                     '''
                 }
             }
