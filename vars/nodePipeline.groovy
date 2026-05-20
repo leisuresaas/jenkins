@@ -72,10 +72,10 @@ def call(Map config = [:]){
                 }
             }
 
-            stage("DepolyToTestServer"){
+            stage("DeployToTestServer"){
 
                 when{
-                    branch 'main'
+                    branch 'develop'
                 }
 
                 steps{
@@ -86,6 +86,20 @@ def call(Map config = [:]){
                         docker restart ${APP_NAME}-node
                     '''
                 }
+            }
+
+            stage("DeployToProductionServer"){
+
+                when{
+                    branch 'main'
+                }
+
+                steps{
+                    sh '''
+                        echo "hello production"
+                    '''
+                }
+
             }
 
         }
