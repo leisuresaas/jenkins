@@ -115,10 +115,28 @@ def call(Map config = [:]){
                                     verbose: true,
                                     transfers: [
                                         sshTransfer(
-                                            sourceFiles: "/home/archive${APP_NAME}.tar",
+                                            sourceFiles: "/home/archive/${APP_NAME}.tar",
                                             remoteDirectory: "/tmp",
                                             execCommand: """
 
+                                                set -e
+
+                                                # 
+                                                TEMP_DIR = "/tmp/deploy_${APP_NAME}"
+                                                mkdir -p ${TEMP_DIR}
+
+                                                #
+                                                tar -xf /tmp/${APP_NAME}.tar -C ${TEMP_DIR}
+
+                                                #
+                                                if [-f "/home/app/${APP_NAME}/.env"]; then
+                                                    cp /home/app/${APP_NAME}/.env ${TEMP_DIR}/
+                                                fi
+
+                                                #
+                                                rm -rf /home/backup/${APPNAME}/
+                                                mv /home/app/${APP_NAME} /home/backup/${APP_NAME}
+                                                mv ${TEMP_DIR} /home/app/${APP_NAME}
                                                 echo "hello production"
 
                                             """
@@ -132,9 +150,6 @@ def call(Map config = [:]){
 
                     }
 
-                    sh '''
-                        echo "hello production"
-                    '''
                 }
 
             }
