@@ -135,7 +135,7 @@ def call(Map config = [:]){
                                                 tar -xf /tmp/${APP_NAME}.tar -C ${TEMP_DIR}
 
                                                 #
-                                                if [ -f "${APP_DIR}/.env"]; then
+                                                if [ -f "${APP_DIR}/.env" ]; then
                                                     cp ${APP_DIR}/.env ${TEMP_DIR}/
                                                 fi
 
@@ -143,6 +143,12 @@ def call(Map config = [:]){
                                                 rm -rf ${BACKUP_DIR}
                                                 mv ${APP_DIR} ${BACKUP_DIR}
                                                 mv ${TEMP_DIR} ${APP_DIR}
+
+                                                # clean
+                                                rm -f /tmp/${APP_NAME}.tar
+
+                                                #
+                                                docker restart ${APP_NAME}
 
                                             """
                                         )
