@@ -52,7 +52,7 @@ def call(Map config = [:]){
                         echo "Approving build scripts"
                         pnpm approve-builds --all
 
-                        echo "Reinstall approved
+                        echo "Reinstall with approved scripts"
                         pnpm install
 
                         echo "Building..."
