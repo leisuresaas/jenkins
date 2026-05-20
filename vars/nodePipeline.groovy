@@ -1,6 +1,9 @@
 groovy
 
 def call(Map config = [:]){
+
+    def name = config.name ?: error("Parameter 'name' is required")
+
     pipeline{
         
         agent any
@@ -56,8 +59,8 @@ def call(Map config = [:]){
                         cp -r .next/static ./build/.next
                         cp -r ./public ./build
                         cd ./build
-                        rm -f /home/archive/test.tar
-                        tar -cf /home/archive/test.tar .
+                        rm -f /home/archive/${name}.tar
+                        tar -cf /home/archive/${name}.tar .
                         cd ..
                     '''
                 }
@@ -71,9 +74,9 @@ def call(Map config = [:]){
 
                 steps{
                     sh '''
-                        sudo rm -rf /home/app/test/*
-                        tar -xvf /home/archive/test.tar -C /home/app/test
-                        docker restart test-node
+                        sudo rm -rf /home/app/${name}/*
+                        tar -xf /home/archive/${name}.tar -C /home/app/${name}
+                        docker restart ${name}-node
                     '''
                 }
             }
