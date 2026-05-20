@@ -4,6 +4,10 @@ def call(Map config = [:]){
     pipeline{
         
         agent any
+
+        tools{
+            nodejs 'node-25'
+        }
         
         environment {
             NODE_VERSION = '25'
@@ -14,9 +18,19 @@ def call(Map config = [:]){
             stage('Prepare'){
                 steps{
                     script{
-                        def version = config.version ?: '25'
+                        def version = config.version ? '25'
                         env.NODE_VERSION = version
                     }
+                    sh '''
+                        # print environment
+                        echo "Node version: $(node -v)"
+                        echo "npm version: $(npm -v)"
+
+                        # install pnpm
+                        npm install -g pnpm
+
+                        echo "pnpm version: $(pnpm -v)"
+                    '''
                 }
             }
 
