@@ -92,9 +92,23 @@ def call(Map config = [:]){
 
                 steps{
                     sh '''
+                        #
+                        if [ -f "${APP_DIR}/.env" ]; then
+                            mv ${APP_DIR}/.env /tmp/${APP_NAME}.env
+                        fi
+
+                        #
                         sudo rm -rf /home/app/${APP_NAME}
                         mkdir /home/app/${APP_NAME}
+
+                        #
                         tar -xf /home/archive/${APP_NAME}.tar -C /home/app/${APP_NAME}
+                        
+                        #
+                        if [ -f "/tmp/${APP_NAME}.env" ]; then
+                            mv /tmp/${APP_NAME}.env ${APP_DIR}/.env
+                        fi
+
                         docker restart ${APP_NAME}-node
                     '''
                 }
