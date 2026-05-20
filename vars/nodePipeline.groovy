@@ -68,11 +68,12 @@ def call(Map config = [:]){
                 when{
                     branch 'main'
                 }
-                
+
                 steps{
                     sh '''
-                        rm -rf /home/app/test/*
+                        sudo rm -rf /home/app/test/*
                         tar -xvf /home/archive/test.tar -C /home/app/test
+                        docker restart test-node
                     '''
                 }
             }
