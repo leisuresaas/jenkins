@@ -57,7 +57,7 @@ def call(Map config = [:]){
                         cp -r ./public ./build
                         cd ./build
                         rm -f /home/archive/test.tar
-                        tar -cvf /home/archive/test.tar .
+                        tar -cf /home/archive/test.tar .
                         cd ..
                     '''
                 }
@@ -67,7 +67,7 @@ def call(Map config = [:]){
                 steps{
                     sh '''
                         rm -rf /home/app/test/*
-                        tar -xvf /home/archive/test.tar -C /home/app/test/
+                        tar -xvf /home/archive/test.tar -C /home/app/test
                     '''
                 }
             }
