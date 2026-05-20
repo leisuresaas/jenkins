@@ -80,7 +80,8 @@ def call(Map config = [:]){
 
                 steps{
                     sh '''
-                        sudo rm -rf /home/app/${APP_NAME}/*
+                        sudo rm -rf /home/app/${APP_NAME}
+                        mkdir /home/app/${APP_NAME}
                         tar -xf /home/archive/${APP_NAME}.tar -C /home/app/${APP_NAME}
                         docker restart ${APP_NAME}-node
                     '''
