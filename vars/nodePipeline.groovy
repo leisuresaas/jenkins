@@ -10,7 +10,6 @@ def call(Map config = [:]){
         }
         
         environment {
-            NODE_VERSION = '25'
         }
 
         stages{
@@ -18,8 +17,7 @@ def call(Map config = [:]){
             stage('Prepare'){
                 steps{
                     script{
-                        def version = config.version ? '25'
-                        env.NODE_VERSION = version
+                        def version = config.version ?: '25'
                     }
                     sh '''
                         # print environment
