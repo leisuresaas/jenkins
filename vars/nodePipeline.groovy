@@ -29,16 +29,19 @@ def call(Map config = [:]){
                 }
             }
 
-            stage('Checkout'){
-                steps{
-                    echo "checkout source from github..."
-                    checkout scm
-                }
-            }
+            // stage('Checkout'){
+            //     steps{
+            //         echo "checkout source from github..."
+            //         checkout scm
+            //     }
+            // }
 
             stage('Build'){
                 steps{
-                    echo "Using Node.js version: ${env.NODE_VERSION}"
+                    sh '''
+                        pnpm install
+                        pnpm build
+                    '''
                 }
             }
 
