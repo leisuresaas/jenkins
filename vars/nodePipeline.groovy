@@ -22,18 +22,16 @@ def call(Map config = [:]){
 
             stage('Prepare'){
                 steps{
-                    script{
-                        def version = config.version ?: '25'
-                    }
                     sh '''
-                        # print environment
-                        echo "Node version: $(node -v)"
-                        echo "npm version: $(npm -v)"
-
                         # install pnpm
                         npm install -g pnpm
 
+                        echo "====================================="
+                        echo "Build ${APP_NAME}"
+                        echo "Node version: $(node -v)"
+                        echo "npm version: $(npm -v)"
                         echo "pnpm version: $(pnpm -v)"
+                        echo "====================================="
                     '''
                 }
             }
@@ -48,9 +46,19 @@ def call(Map config = [:]){
             stage('Build'){
                 steps{
                     sh '''
+                        echo "Installing dependencies..."
+                        pnpm install --ignore-scripts || true
+
+                        echo "Approving build scripts"
                         pnpm approve-builds --all
+
+                        echo "Reinstall approved
                         pnpm install
+
+                        echo "Building..."
                         pnpm build
+
+                        echo "Build completed successfully!"
                     '''
                 }
             }
