@@ -65,8 +65,8 @@ def call(Map config = [:]){
             stage("DepolyToTestServer"){
                 steps{
                     sh '''
-                        rm -rf /home/test/*
-                        sudo tar -xvf /home/archive/test.tar /home/test/
+                        rm -rf /home/app/test/*
+                        sudo tar -xvf /home/archive/test.tar /home/app/test/
                     '''
                 }
             }
