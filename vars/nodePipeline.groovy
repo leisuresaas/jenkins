@@ -103,6 +103,35 @@ def call(Map config = [:]){
                 }
 
                 steps{
+
+                    input message: "Confirm deploy to production server?", ok: "confirm"
+
+                    script{
+
+                        sshPublisher(
+                            publishers:[
+                                sshPublisherDesc(
+                                    configName: "Production-2",
+                                    verbose: true,
+                                    transfers: [
+                                        sshTransfer(
+                                            sourceFiles: "/home/archive${APP_NAME}.tar",
+                                            remoteDirectory: "/tmp",
+                                            execCommand: """
+
+                                                echo "hello production"
+
+                                            """
+                                        )
+                                    ],
+                                    execTimeout: 120000,
+                                    usePty: true
+                                )
+                            ]
+                        )
+
+                    }
+
                     sh '''
                         echo "hello production"
                     '''
