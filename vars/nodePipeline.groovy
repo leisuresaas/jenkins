@@ -109,6 +109,9 @@ def call(Map config = [:]){
                 steps{
 
                     // input message: "Confirm deploy to production server?", ok: "confirm"
+                    sh '''
+                        cp ${ARCHIVE_FILE} .
+                    '''
 
                     script{
 
@@ -119,7 +122,7 @@ def call(Map config = [:]){
                                     verbose: true,
                                     transfers: [
                                         sshTransfer(
-                                            sourceFiles: "/home/archive/${APP_NAME}.tar",
+                                            sourceFiles: "${APP_NAME}.tar",
                                             remoteDirectory: "/tmp",
                                             execCommand: """
 
