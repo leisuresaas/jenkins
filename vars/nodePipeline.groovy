@@ -24,6 +24,28 @@ def call(Map config = [:]){
         
         stages{
 
+            stage('Load Environment'){
+                steps{
+                    script{
+
+                        def id = ${APP_NAME}-env
+
+                        if(id && availableConfigs.contains(id)){
+                            configFileProvider([
+                                configFile(fileId: id, targetLocation: 'env.properties')
+                            ])
+
+                            def props = readProperties file: 'env.properties'
+
+                            props.each { key, value ->
+                                env."${key}" = value
+                            }
+                        }
+
+                    }
+                }
+            }
+
             stage('Prepare'){
                 steps{
                     sh '''
@@ -109,7 +131,7 @@ def call(Map config = [:]){
                             sudo mv /tmp/${APP_NAME}.env ${APP_DIR}/.env
                         fi
 
-                        docker restart ${APP_NAME}-node
+                        docker restart ${APP_NAME}
                     '''
                 }
             }
