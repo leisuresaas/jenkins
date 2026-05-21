@@ -31,7 +31,7 @@ def call(Map config = [:]){
                         def id = "${APP_NAME}-env"
 
                         try{
-                            
+
                             configFileProvider([
                                 configFile(fileId: id, targetLocation: 'env.properties')
                             ])
@@ -80,7 +80,7 @@ def call(Map config = [:]){
                         pnpm install --ignore-scripts || true
 
                         echo "Approving build scripts"
-                        pnpm approve-builds --all
+                        pnpm approve-builds --all || true
 
                         echo "Reinstall with approved scripts"
                         pnpm install
