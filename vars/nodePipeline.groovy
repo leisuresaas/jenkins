@@ -30,7 +30,8 @@ def call(Map config = [:]){
 
                         def id = "${APP_NAME}-env"
 
-                        if(id && availableConfigs.contains(id)){
+                        try{
+                            
                             configFileProvider([
                                 configFile(fileId: id, targetLocation: 'env.properties')
                             ])
@@ -40,6 +41,9 @@ def call(Map config = [:]){
                             props.each { key, value ->
                                 env."${key}" = value
                             }
+
+                        }catch(Exception e){
+                            echo "No environment configuration found for ${APP_NAME} (fileId: ${id})"
                         }
 
                     }
