@@ -39,6 +39,7 @@ def call(Map config = [:]){
 
                                 props.each { key, value ->
                                     env."${key}" = value
+                                    echo "Set Environment ${key} = ${value}"
                                 }
                             }
 
