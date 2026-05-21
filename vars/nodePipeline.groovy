@@ -34,13 +34,14 @@ def call(Map config = [:]){
 
                             configFileProvider([
                                 configFile(fileId: id, targetLocation: 'env.properties')
-                            ])
+                            ]){
+                                def props = readProperties file: 'env.properties'
 
-                            def props = readProperties file: 'env.properties'
-
-                            props.each { key, value ->
-                                env."${key}" = value
+                                props.each { key, value ->
+                                    env."${key}" = value
+                                }
                             }
+
 
                         // }catch(Exception e){
                         //     echo "No environment configuration found for ${APP_NAME} (fileId: ${id})"
