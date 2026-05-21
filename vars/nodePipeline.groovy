@@ -28,7 +28,7 @@ def call(Map config = [:]){
                 steps{
                     script{
 
-                        def id = ${APP_NAME}-env
+                        def id = "${APP_NAME}-env"
 
                         if(id && availableConfigs.contains(id)){
                             configFileProvider([
