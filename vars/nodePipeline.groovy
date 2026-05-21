@@ -101,7 +101,11 @@ def call(Map config = [:]){
                         cp -r .next/standalone/* ./build
                         cp -r .next/standalone/.next ./build
                         cp -r .next/static ./build/.next
-                        cp -r ./public ./build
+
+                        if [ -d "./public" ]; then
+                            cp -r ./public ./build
+                        fi
+
                         cd ./build
                         rm -f ${ARCHIVE_FILE}
                         tar -cf ${ARCHIVE_FILE} .
