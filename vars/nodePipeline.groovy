@@ -30,7 +30,7 @@ def call(Map config = [:]){
 
                         def id = "env"
 
-                        try{
+                        // try{
 
                             configFileProvider([
                                 configFile(fileId: id, targetLocation: 'env.properties')
@@ -42,9 +42,9 @@ def call(Map config = [:]){
                                 env."${key}" = value
                             }
 
-                        }catch(Exception e){
-                            echo "No environment configuration found for ${APP_NAME} (fileId: ${id})"
-                        }
+                        // }catch(Exception e){
+                        //     echo "No environment configuration found for ${APP_NAME} (fileId: ${id})"
+                        // }
 
                     }
                 }
