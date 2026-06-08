@@ -1,0 +1,225 @@
+groovy
+
+def call(Map config = [:]){
+
+    if(!config.name){
+        error("Parameter 'name' is required")
+    }
+
+    def mainPath = config.main ?: '.'
+    def binaryName = config.binaryName ?: config.name
+
+    pipeline{
+
+        agent any
+
+        environment{
+            APP_NAME = "${config.name}"
+            BINARY_NAME = "${binaryName}"
+            MAIN_PATH = "${mainPath}"
+            APP_DIR = "/home/app/${config.name}"
+            BACKUP_DIR = "/home/backup/${config.name}"
+            TEMP_DIR = "/tmp/deploy_${config.name}"
+            ARCHIVE_FILE = "/home/archive/${config.name}.tar"
+        }
+
+        tools{
+            go 'go-1.25'
+        }
+
+        stages{
+
+            stage('Load Environment'){
+                steps{
+                    script{
+
+                        def id = "${env.BRANCH_NAME}-env"
+
+                        try{
+
+                            configFileProvider([
+                                configFile(fileId: id, targetLocation: 'env.properties')
+                            ]){
+                                def props = readProperties file: 'env.properties'
+
+                                props.each { key, value ->
+                                    env."${key}" = value
+                                    echo "Set Environment ${key} = ${value}"
+                                }
+                            }
+
+
+                        }catch(Exception e){
+                            echo "No environment configuration found for ${APP_NAME} (fileId: ${id})"
+                        }
+
+                    }
+                }
+            }
+
+            stage('Prepare'){
+                steps{
+                    sh '''
+                        echo "====================================="
+                        echo "Build ${APP_NAME}"
+                        echo "Go version: $(go version)"
+                        echo "Main path: ${MAIN_PATH}"
+                        echo "Binary name: ${BINARY_NAME}"
+                        echo "====================================="
+                    '''
+                }
+            }
+
+            // stage('Checkout'){
+            //     steps{
+            //         echo "checkout source from github..."
+            //         checkout scm
+            //     }
+            // }
+
+            stage('Build'){
+                steps{
+                    sh '''
+                        echo "Downloading dependencies..."
+                        go mod download
+
+                        echo "Building..."
+                        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ${BINARY_NAME} ${MAIN_PATH}
+
+                        echo "Build completed successfully!"
+                    '''
+                }
+            }
+
+            // stage("Archive"){
+            //     steps{
+            //         sh '''
+            //             rm -rf ./build
+            //             mkdir ./build
+            //             cp ${BINARY_NAME} ./build/
+
+            //             if [ -d "./configs" ]; then
+            //                 cp -r ./configs ./build/
+            //             fi
+
+            //             if [ -f "./config.yaml" ]; then
+            //                 cp ./config.yaml ./build/
+            //             fi
+
+            //             if [ -f "./config.yml" ]; then
+            //                 cp ./config.yml ./build/
+            //             fi
+
+            //             cd ./build
+            //             rm -f ${ARCHIVE_FILE}
+            //             tar -cf ${ARCHIVE_FILE} .
+            //             cd ..
+            //         '''
+            //     }
+            // }
+
+            stage("DeployToTestServer"){
+
+                when{
+                    branch 'develop'
+                }
+
+                steps{
+                    sh '''
+                        # config.yaml
+                        if [ -f "${APP_DIR}/config.yaml" ]; then
+                            sudo mv ${APP_DIR}/config.yaml /tmp/${APP_NAME}.config.yaml
+                        fi
+
+                        #
+                        sudo rm -rf /home/app/${APP_NAME}
+                        mkdir /home/app/${APP_NAME}
+
+                        #
+                        # tar -xf /home/archive/${APP_NAME}.tar -C /home/app/${APP_NAME}
+                        cp ${BINARY_NAME} ${APP_DIR}/${BINARY_NAME}
+
+                        #
+                        chmod +x ${APP_DIR}/${BINARY_NAME}
+
+                        #
+                        if [ -f "/tmp/${APP_NAME}.config.yaml" ]; then
+                            sudo mv /tmp/${APP_NAME}.config.yaml ${APP_DIR}/config.yaml
+                        fi
+
+                        docker restart ${APP_NAME}
+                    '''
+                }
+            }
+
+            stage("DeployToProductionServer"){
+
+                when{
+                    branch 'main'
+                }
+
+                steps{
+
+                    // input message: "Confirm deploy to production server?", ok: "confirm"
+                    sh '''
+                        cp ${ARCHIVE_FILE} .
+                    '''
+
+                    script{
+
+                        sshPublisher(
+                            publishers:[
+                                sshPublisherDesc(
+                                    configName: "Production-2",
+                                    verbose: true,
+                                    transfers: [
+                                        sshTransfer(
+                                            sourceFiles: "${APP_NAME}.tar",
+                                            remoteDirectory: "/tmp",
+                                            execCommand: """
+
+                                                set -e
+
+                                                #
+                                                mkdir -p ${TEMP_DIR}
+
+                                                #
+                                                tar -xf /tmp/${APP_NAME}.tar -C ${TEMP_DIR}
+
+                                                #
+                                                chmod +x ${TEMP_DIR}/${BINARY_NAME}
+
+                                                #
+                                                if [ -f "${APP_DIR}/.env" ]; then
+                                                    cp ${APP_DIR}/.env ${TEMP_DIR}/
+                                                fi
+
+                                                #
+                                                sudo rm -rf ${BACKUP_DIR}
+                                                mv ${APP_DIR} ${BACKUP_DIR}
+                                                mv ${TEMP_DIR} ${APP_DIR}
+
+                                                # clean
+                                                rm -f /tmp/${APP_NAME}.tar
+
+                                                #
+                                                docker restart ${APP_NAME}
+
+                                            """
+                                        )
+                                    ],
+                                    execTimeout: 120000,
+                                    usePty: true
+                                )
+                            ]
+                        )
+
+                    }
+
+                }
+
+            }
+
+        }
+    }
+}
