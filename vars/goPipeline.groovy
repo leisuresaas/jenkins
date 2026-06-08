@@ -189,11 +189,6 @@ def call(Map config = [:]){
 
                 steps{
 
-                    // input message: "Confirm deploy to production server?", ok: "confirm"
-                    sh '''
-                        cp ${ARCHIVE_FILE} .
-                    '''
-
                     script{
 
                         sshPublisher(
@@ -203,7 +198,7 @@ def call(Map config = [:]){
                                     verbose: true,
                                     transfers: [
                                         sshTransfer(
-                                            sourceFiles: "${APP_NAME}.tar",
+                                            sourceFiles: "${BINARY_NAME}",
                                             remoteDirectory: "/tmp",
                                             execCommand: """
 
@@ -212,24 +207,17 @@ def call(Map config = [:]){
                                                 #
                                                 mkdir -p ${TEMP_DIR}
 
-                                                #
-                                                tar -xf /tmp/${APP_NAME}.tar -C ${TEMP_DIR}
-
-                                                #
+                                                cp ${BINARY_NAME} ${TEMP_DIR}/${BINARY_NAME}
                                                 chmod +x ${TEMP_DIR}/${BINARY_NAME}
 
-                                                #
-                                                if [ -f "${APP_DIR}/.env" ]; then
-                                                    cp ${APP_DIR}/.env ${TEMP_DIR}/
+                                                if [ -f "${APP_DIR}/config.yaml" ]; then
+                                                    cp ${APP_DIR}/config.yaml ${TEMP_DIR}/${APP_NAME}.config.yaml
                                                 fi
 
                                                 #
                                                 sudo rm -rf ${BACKUP_DIR}
                                                 mv ${APP_DIR} ${BACKUP_DIR}
                                                 mv ${TEMP_DIR} ${APP_DIR}
-
-                                                # clean
-                                                rm -f /tmp/${APP_NAME}.tar
 
                                                 #
                                                 docker restart ${CONTAINER_NAME}
