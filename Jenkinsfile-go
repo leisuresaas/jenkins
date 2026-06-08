@@ -4,6 +4,7 @@
 //   1. Jenkins Shared Library 已指向本仓库
 //   2. Global Tool Configuration 中已配置名为 go-1.25 的 Go 工具
 //   3. 项目根目录存在 go.mod
+//   4. Jenkins Credentials 中已添加 github-pat（Username with password，Password 为 GitHub PAT）
 //
 // 分支部署规则（由 goPipeline 内部控制）：
 //   - develop → 部署到测试服务器
@@ -18,5 +19,7 @@
 goPipeline(
     name: 'my-go-service',
     main: './cmd/server',
-    binaryName: 'my-go-service'
+    binaryName: 'my-go-service',
+    gitCredentialsId: 'github-pat',
+    goPrivate: 'github.com/leisuresaas/*,github.com/leisurecoder/*'
 )

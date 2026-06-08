@@ -9,6 +9,7 @@ def call(Map config = [:]){
     def mainPath = config.main ?: '.'
     def binaryName = config.binaryName ?: config.name
     def goPrivate = config.goPrivate ?: 'github.com/leisuresaas/*,github.com/leisurecoder/*'
+    def gitCredentialsId = config.gitCredentialsId ?: 'Github-Leisurecoder'
 
     pipeline{
 
@@ -86,16 +87,31 @@ def call(Map config = [:]){
 
             stage('Build'){
                 steps{
-                    sh '''
-                        echo "Downloading dependencies..."
-                        go env GOPRIVATE GONOSUMDB GONOPROXY
-                        go mod download
+                    script {
+                        def buildSteps = { ->
+                            sh '''
 
-                        echo "Building..."
-                        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ${BINARY_NAME} ${MAIN_PATH}
+                                git config --global url."https://${GIT_USER}:${GIT_TOKEN}@github.com/".insteadOf "https://github.com/"
 
-                        echo "Build completed successfully!"
-                    '''
+                                echo "Downloading dependencies..."
+                                go env GOPRIVATE GONOSUMDB GONOPROXY
+                                go mod download
+
+                                echo "Building..."
+                                CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ${BINARY_NAME} ${MAIN_PATH}
+
+                                echo "Build completed successfully!"
+                            '''
+                        }
+
+                        withCredentials([usernamePassword(
+                            credentialsId: gitCredentialsId,
+                            usernameVariable: 'GIT_USER',
+                            passwordVariable: 'GIT_TOKEN'
+                        )]) {
+                            buildSteps()
+                        }
+                    }
                 }
             }
 
