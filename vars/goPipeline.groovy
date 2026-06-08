@@ -8,6 +8,8 @@ def call(Map config = [:]){
 
     def mainPath = config.main ?: '.'
     def binaryName = config.binaryName ?: config.name
+    def rootDir = config.rootDir ?: "/home/app"
+    def container = config.container ?: config.name
     def goPrivate = config.goPrivate ?: 'github.com/leisuresaas/*,github.com/leisurecoder/*'
     def gitCredentialsId = config.gitCredentialsId ?: 'Github-Leisurecoder'
 
@@ -19,7 +21,8 @@ def call(Map config = [:]){
             APP_NAME = "${config.name}"
             BINARY_NAME = "${binaryName}"
             MAIN_PATH = "${mainPath}"
-            APP_DIR = "/home/app/${config.name}"
+            APP_DIR = "${rootDir}/${config.name}"
+            CONTAINER_NAME = "${container}"
             BACKUP_DIR = "/home/backup/${config.name}"
             TEMP_DIR = "/tmp/deploy_${config.name}"
             ARCHIVE_FILE = "/home/archive/${config.name}.tar"
@@ -70,6 +73,8 @@ def call(Map config = [:]){
                         echo "Go version: $(go version)"
                         echo "Main path: ${MAIN_PATH}"
                         echo "Binary name: ${BINARY_NAME}"
+                        echo "App dir: ${APP_DIR}"
+                        echo "Container: ${CONTAINER_NAME}"
                         echo "GOPRIVATE: ${GOPRIVATE}"
                         echo "GONOSUMDB: ${GONOSUMDB}"
                         echo "GONOPROXY: ${GONOPROXY}"
@@ -156,11 +161,11 @@ def call(Map config = [:]){
                         fi
 
                         #
-                        sudo rm -rf /home/app/${APP_NAME}
-                        mkdir /home/app/${APP_NAME}
+                        sudo rm -rf ${APP_DIR}
+                        mkdir -p ${APP_DIR}
 
                         #
-                        # tar -xf /home/archive/${APP_NAME}.tar -C /home/app/${APP_NAME}
+                        # tar -xf /home/archive/${APP_NAME}.tar -C ${APP_DIR}
                         cp ${BINARY_NAME} ${APP_DIR}/${BINARY_NAME}
 
                         #
@@ -171,7 +176,7 @@ def call(Map config = [:]){
                             sudo mv /tmp/${APP_NAME}.config.yaml ${APP_DIR}/config.yaml
                         fi
 
-                        docker restart ${APP_NAME}
+                        docker restart ${CONTAINER_NAME}
                     '''
                 }
             }
@@ -227,7 +232,7 @@ def call(Map config = [:]){
                                                 rm -f /tmp/${APP_NAME}.tar
 
                                                 #
-                                                docker restart ${APP_NAME}
+                                                docker restart ${CONTAINER_NAME}
 
                                             """
                                         )
