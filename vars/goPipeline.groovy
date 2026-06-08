@@ -25,7 +25,7 @@ def call(Map config = [:]){
             CONTAINER_NAME = "${container}"
             BACKUP_DIR = "/home/backup/${config.name}"
             TEMP_DIR = "/tmp/deploy_${config.name}"
-            ARCHIVE_FILE = "/home/archive/${config.name}.tar"
+            ARCHIVE_FILE = "/home/archive/${config.name}/${config.binaryName}"
             GOPRIVATE = "${goPrivate}"
             GONOSUMDB = "${goPrivate}"
             GONOPROXY = "${goPrivate}"
@@ -120,32 +120,15 @@ def call(Map config = [:]){
                 }
             }
 
-            // stage("Archive"){
-            //     steps{
-            //         sh '''
-            //             rm -rf ./build
-            //             mkdir ./build
-            //             cp ${BINARY_NAME} ./build/
-
-            //             if [ -d "./configs" ]; then
-            //                 cp -r ./configs ./build/
-            //             fi
-
-            //             if [ -f "./config.yaml" ]; then
-            //                 cp ./config.yaml ./build/
-            //             fi
-
-            //             if [ -f "./config.yml" ]; then
-            //                 cp ./config.yml ./build/
-            //             fi
-
-            //             cd ./build
-            //             rm -f ${ARCHIVE_FILE}
-            //             tar -cf ${ARCHIVE_FILE} .
-            //             cd ..
-            //         '''
-            //     }
-            // }
+            stage("Archive"){
+                steps{
+                    sh '''
+                        mkdir -p $(dirname "${ARCHIVE_FILE}")
+                        rm -f "${ARCHIVE_FILE}"
+                        cp "${BINARY_NAME}" "${ARCHIVE_FILE}"
+                    '''
+                }
+            }
 
             stage("DeployToTestServer"){
 
@@ -165,7 +148,6 @@ def call(Map config = [:]){
                         mkdir -p ${APP_DIR}
 
                         #
-                        # tar -xf /home/archive/${APP_NAME}.tar -C ${APP_DIR}
                         cp ${BINARY_NAME} ${APP_DIR}/${BINARY_NAME}
 
                         #
@@ -189,6 +171,10 @@ def call(Map config = [:]){
 
                 steps{
 
+                    sh '''
+                        cp ${ARCHIVE_FILE} .
+                    '''
+
                     script{
 
                         sshPublisher(
@@ -198,7 +184,7 @@ def call(Map config = [:]){
                                     verbose: true,
                                     transfers: [
                                         sshTransfer(
-                                            sourceFiles: "./${BINARY_NAME}",
+                                            sourceFiles: "${BINARY_NAME}",
                                             remoteDirectory: "/tmp",
                                             execCommand: """
 
