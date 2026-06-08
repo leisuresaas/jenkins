@@ -198,7 +198,7 @@ def call(Map config = [:]){
                                     verbose: true,
                                     transfers: [
                                         sshTransfer(
-                                            sourceFiles: "${BINARY_NAME}",
+                                            sourceFiles: "./${BINARY_NAME}",
                                             remoteDirectory: "/tmp",
                                             execCommand: """
 
@@ -207,7 +207,7 @@ def call(Map config = [:]){
                                                 #
                                                 mkdir -p ${TEMP_DIR}
 
-                                                cp ${BINARY_NAME} ${TEMP_DIR}/${BINARY_NAME}
+                                                cp ./${BINARY_NAME} ${TEMP_DIR}/${BINARY_NAME}
                                                 chmod +x ${TEMP_DIR}/${BINARY_NAME}
 
                                                 if [ -f "${APP_DIR}/config.yaml" ]; then
