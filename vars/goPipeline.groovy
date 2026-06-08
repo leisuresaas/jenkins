@@ -8,6 +8,7 @@ def call(Map config = [:]){
 
     def mainPath = config.main ?: '.'
     def binaryName = config.binaryName ?: config.name
+    def goPrivate = config.goPrivate ?: 'github.com/leisuresaas/*,github.com/leisurecoder/*'
 
     pipeline{
 
@@ -21,6 +22,9 @@ def call(Map config = [:]){
             BACKUP_DIR = "/home/backup/${config.name}"
             TEMP_DIR = "/tmp/deploy_${config.name}"
             ARCHIVE_FILE = "/home/archive/${config.name}.tar"
+            GOPRIVATE = "${goPrivate}"
+            GONOSUMDB = "${goPrivate}"
+            GONOPROXY = "${goPrivate}"
         }
 
         tools{
@@ -65,6 +69,9 @@ def call(Map config = [:]){
                         echo "Go version: $(go version)"
                         echo "Main path: ${MAIN_PATH}"
                         echo "Binary name: ${BINARY_NAME}"
+                        echo "GOPRIVATE: ${GOPRIVATE}"
+                        echo "GONOSUMDB: ${GONOSUMDB}"
+                        echo "GONOPROXY: ${GONOPROXY}"
                         echo "====================================="
                     '''
                 }
@@ -81,6 +88,7 @@ def call(Map config = [:]){
                 steps{
                     sh '''
                         echo "Downloading dependencies..."
+                        go env GOPRIVATE GONOSUMDB GONOPROXY
                         go mod download
 
                         echo "Building..."
