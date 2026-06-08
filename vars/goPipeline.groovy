@@ -105,6 +105,8 @@ def call(Map config = [:]){
                                 # GOPRIVATE/GONOPROXY/GONOSUMDB already fetch private modules from VCS.
                                 export GOMODCACHE="${WORKSPACE}/.gomodcache"
                                 rm -rf "${GOMODCACHE}"
+
+                                go mod tidy
                                 go mod download
 
                                 echo "Building..."
