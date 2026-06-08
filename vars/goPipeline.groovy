@@ -104,7 +104,7 @@ def call(Map config = [:]){
                                 # Fresh module cache per build (no reuse of agent/global modcache).
                                 # GOPRIVATE/GONOPROXY/GONOSUMDB already fetch private modules from VCS.
                                 export GOMODCACHE="${WORKSPACE}/.gomodcache"
-                                rm -rf "${GOMODCACHE}"
+                                sudo rm -rf "${GOMODCACHE}"
 
                                 go mod tidy
                                 go mod download
