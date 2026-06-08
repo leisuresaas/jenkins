@@ -6,13 +6,17 @@ def call(Map config = [:]){
         error("Parameter 'name' is required")
     }
 
+    def rootDir = config.rootDir ?: "/home/app"
+    def container = config.container ?: config.name
+
     pipeline{
-        
+
         agent any
 
         environment{
             APP_NAME = "${config.name}"
-            APP_DIR = "/home/app/${config.name}"
+            APP_DIR = "${rootDir}/${config.name}"
+            CONTAINER_NAME = "${container}"
             BACKUP_DIR = "/home/backup/${config.name}"
             TEMP_DIR = "/tmp/deploy_${config.name}"
             ARCHIVE_FILE = "/home/archive/${config.name}.tar"
@@ -60,6 +64,8 @@ def call(Map config = [:]){
 
                         echo "====================================="
                         echo "Build ${APP_NAME}"
+                        echo "App dir: ${APP_DIR}"
+                        echo "Container: ${CONTAINER_NAME}"
                         echo "Node version: $(node -v)"
                         echo "npm version: $(npm -v)"
                         echo "pnpm version: $(pnpm -v)"
@@ -130,18 +136,18 @@ def call(Map config = [:]){
                         fi
 
                         #
-                        sudo rm -rf /home/app/${APP_NAME}
-                        mkdir /home/app/${APP_NAME}
+                        sudo rm -rf ${APP_DIR}
+                        mkdir -p ${APP_DIR}
 
                         #
-                        tar -xf /home/archive/${APP_NAME}.tar -C /home/app/${APP_NAME}
-                        
+                        tar -xf ${ARCHIVE_FILE} -C ${APP_DIR}
+
                         #
                         if [ -f "/tmp/${APP_NAME}.env" ]; then
                             sudo mv /tmp/${APP_NAME}.env ${APP_DIR}/.env
                         fi
 
-                        docker restart ${APP_NAME}
+                        docker restart ${CONTAINER_NAME}
                     '''
                 }
             }
@@ -194,7 +200,7 @@ def call(Map config = [:]){
                                                 rm -f /tmp/${APP_NAME}.tar
 
                                                 #
-                                                docker restart ${APP_NAME}
+                                                docker restart ${CONTAINER_NAME}
 
                                             """
                                         )
